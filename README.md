@@ -1,75 +1,228 @@
-# Welcome to OnSpace AI
+# 🏠🍽️ RoomNMeal
 
-Onspace AI empowers anyone to turn ideas into powerful AI applications in minutes—no coding required. Our free, no-code platform enables effortless creation of custom AI apps; simply describe your vision and our agentic AI handles the rest. The onspace-app, built with React Native and Expo, demonstrates this capability—integrating popular third-party libraries to deliver seamless cross-platform performance across iOS, Android, and Web environments.
+**RoomNMeal** is a mobile-first platform built for India that helps
+**students and working professionals** find **verified rooms/PGs and
+mess (tiffin) services** near colleges and workplaces --- **without
+brokers, scams, or hidden charges**.
 
-## Getting Started
+The platform is designed especially for **Tier-2 and Tier-3 cities**,
+where accommodation and food discovery is still unorganized and
+trust-based.
 
-### 1. Install Dependencies
+------------------------------------------------------------------------
 
-```bash
+## 🎯 Problem Statement
+
+Finding a room or mess in a new city is stressful and unreliable:
+
+-   Fake listings and high broker fees\
+-   No verified information about rooms or mess food\
+-   No single platform for **stay + food**\
+-   Students waste days searching offline
+
+------------------------------------------------------------------------
+
+## ✅ Solution: RoomNMeal
+
+RoomNMeal solves this by providing:
+
+-   ✔ Verified room & mess listings\
+-   ✔ Direct contact with owners (WhatsApp / Call)\
+-   ✔ No brokerage\
+-   ✔ Simple, fast, mobile-first UX\
+-   ✔ Admin-controlled verification system
+
+------------------------------------------------------------------------
+
+## 📱 MVP Features
+
+### 👤 User App (Students / Professionals)
+
+-   Phone number login (OTP)
+-   Browse rooms & PG listings
+-   Browse mess / tiffin services
+-   View rent, deposit, rules, photos, menu
+-   Filter by price, gender, veg/non-veg
+-   Contact via WhatsApp or phone
+-   Save / bookmark listings
+
+------------------------------------------------------------------------
+
+### 🏠 Partner Module (Room & Mess Owners)
+
+-   Register as room owner or mess provider
+-   Add & manage listings
+-   Upload photos
+-   Set pricing and availability
+-   View lead count
+
+------------------------------------------------------------------------
+
+### 🛠️ Admin Panel (Core of Trust)
+
+-   Approve / reject listings
+-   Mark listings as **Verified**
+-   Edit or remove fake listings
+-   Manage users and owners
+-   View platform statistics
+
+------------------------------------------------------------------------
+
+## 🧠 Product Philosophy
+
+-   Trust over automation\
+-   Manual verification in early stage\
+-   Simple UX over feature overload\
+-   Mobile-first, India-first design
+
+------------------------------------------------------------------------
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+-   React Native (Expo)
+-   Expo Router
+-   TypeScript
+
+### Backend (Planned / In Progress)
+
+-   Node.js + Express
+-   MongoDB (Mongoose)
+
+### Authentication
+
+-   Phone number OTP (Supabase / Firebase)
+
+### Hosting
+
+-   Expo (Mobile)
+-   Railway / Render (Backend)
+-   MongoDB Atlas (Database)
+
+------------------------------------------------------------------------
+
+## 📂 Project Setup
+
+### 1️⃣ Install Dependencies
+
+``` bash
 npm install
 # or
 yarn install
 ```
 
-### 2. Start the Project
+### 2️⃣ Start the Project
 
-- Start the development server (choose your platform):
-
-```bash
-npm run start         # Start Expo development server
-npm run android       # Launch Android emulator
-npm run ios           # Launch iOS simulator
-npm run web           # Start the web version
+``` bash
+npm run start
+npm run android
+npm run ios
+npm run web
 ```
 
-- Reset the project (clear cache, etc.):
+### 3️⃣ Reset Project
 
-```bash
+``` bash
 npm run reset-project
 ```
 
-### 3. Lint the Code
+### 4️⃣ Lint Code
 
-```bash
+``` bash
 npm run lint
 ```
 
-## Main Dependencies
+------------------------------------------------------------------------
 
-- React Native: 0.79.4
-- React: 19.0.0
-- Expo: ~53.0.12
-- Expo Router: ~5.1.0
-- Supabase: ^2.50.0
-- Other commonly used libraries:  
-  - @expo/vector-icons  
-  - react-native-paper  
-  - react-native-calendars  
-  - lottie-react-native  
-  - react-native-webview  
-  - and more
+## 📦 Main Dependencies
 
-For a full list of dependencies, see [package.json](./package.json).
+-   React Native
+-   Expo
+-   Expo Router
+-   Supabase
+-   @expo/vector-icons
+-   react-native-paper
+-   react-native-calendars
+-   lottie-react-native
+-   react-native-webview
 
-## Development Tools
+------------------------------------------------------------------------
 
-- TypeScript: ~5.8.3
-- ESLint: ^9.25.0
-- @babel/core: ^7.25.2
+## 🚀 Future Roadmap
 
-## Contributing
+-   City-wise expansion
+-   Payments & subscriptions
+-   Reviews & ratings
+-   Admin analytics dashboard
+-   AI-based price suggestions & fraud detection
 
-1. Fork this repository
-2. Create a new branch (`git checkout -b main`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a Pull Request
+------------------------------------------------------------------------
 
-## License
+## 🤖 DETAILED APP BUILDER PROMPT (FOR AI TOOLS)
 
-This project is private ("private": true). For collaboration inquiries, please contact the author.
 
----
+You are a senior full-stack engineer, startup CTO, and product designer.
 
-Feel free to add project screenshots, API documentation, feature descriptions, or any other information as needed.
+Build a production-ready MVP mobile application named RoomNMeal.
+
+RoomNMeal helps students and working professionals in India find VERIFIED rooms/PGs and mess/tiffin services near colleges and workplaces — without brokers or scams.
+
+CORE RULES:
+- Build MVP only
+- No overengineering
+- Admin control is mandatory
+- Trust-first product
+
+TECH STACK:
+- React Native (Expo)
+- Node.js + Express
+- MongoDB
+- Phone OTP authentication
+
+FEATURES:
+USER APP:
+- Phone login
+- City/college-based browsing
+- Room listings with rent, deposit, rules, photos
+- Mess listings with price & menu
+- WhatsApp / Call contact
+- Save listings
+
+OWNER MODULE:
+- Add/edit room or mess listings
+- Upload photos
+- Toggle availability
+- View lead count
+
+ADMIN PANEL:
+- Approve / reject listings
+- Mark listings as VERIFIED
+- Remove fake listings
+- Manage users and owners
+
+OUT OF SCOPE:
+- No chat
+- No payments
+- No maps
+- No reviews
+- No AI in v1
+
+DELIVERABLES:
+- Folder structure
+- MongoDB schemas
+- API routes
+- React Native screens
+- Admin panel
+- Deployment instructions
+
+Build it as a real startup MVP that can be launched in 2–3 weeks.
+
+
+------------------------------------------------------------------------
+
+## 📫 Contact
+
+**Chaitanya Sonaje**\
+📧 Email: chaitanyasonaje0205@gmail.com\
+🌐 GitHub: https://github.com/chaitanyasonaje
