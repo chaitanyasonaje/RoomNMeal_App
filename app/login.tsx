@@ -1,4 +1,4 @@
-// Phone OTP Authentication Screen
+// Email OTP Authentication Screen
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,17 +11,17 @@ export default function LoginScreen() {
   const { sendOTP, verifyOTPAndLogin, operationLoading } = useAuth();
   const { showAlert } = useAlert();
 
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [otp, setOTP] = useState('');
   const [showOTPInput, setShowOTPInput] = useState(false);
 
   const handleSendOTP = async () => {
-    if (!phone || phone.length < 10) {
-      showAlert('Invalid phone number', 'Please enter a valid 10-digit phone number');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      showAlert('Invalid Email', 'Please enter a valid email address');
       return;
     }
 
-    const email = `${phone}@roommeal.app`;
     const { error } = await sendOTP(email);
 
     if (error) {
@@ -30,7 +30,7 @@ export default function LoginScreen() {
     }
 
     setShowOTPInput(true);
-    showAlert('OTP Sent', `Verification code sent to ${phone}`);
+    showAlert('OTP Sent', `Check your email: ${email}`);
   };
 
   const handleVerifyOTP = async () => {
@@ -39,7 +39,6 @@ export default function LoginScreen() {
       return;
     }
 
-    const email = `${phone}@roommeal.app`;
     const { error } = await verifyOTPAndLogin(email, otp);
 
     if (error) {
@@ -73,35 +72,38 @@ export default function LoginScreen() {
           {/* Form */}
           <View style={styles.form}>
             <Text style={styles.formTitle}>
-              {showOTPInput ? 'Enter OTP' : 'Login with Phone'}
+              {showOTPInput ? 'Enter OTP' : 'Login with Email'}
             </Text>
 
             {!showOTPInput ? (
               <>
                 <Input
-                  label="Phone Number"
-                  placeholder="Enter 10-digit phone number"
-                  value={phone}
-                  onChangeText={setPhone}
-                  keyboardType="phone-pad"
-                  maxLength={10}
+                  label="Email Address"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
                   autoFocus
                 />
                 <Button
                   title="Send OTP"
                   onPress={handleSendOTP}
                   loading={operationLoading}
-                  disabled={phone.length < 10}
                 />
+                <Text style={styles.otpNote}>
+                  💡 We'll send a 4-digit code to your email
+                </Text>
               </>
             ) : (
               <>
                 <Text style={styles.otpHint}>
-                  Enter the 4-digit code sent to {phone}
+                  Check your email inbox for the 4-digit code
                 </Text>
+                <Text style={styles.emailDisplay}>{email}</Text>
                 <Input
-                  label="OTP"
-                  placeholder="Enter 4-digit OTP"
+                  label="OTP Code"
+                  placeholder="Enter 4-digit code"
                   value={otp}
                   onChangeText={setOTP}
                   keyboardType="number-pad"
@@ -115,7 +117,7 @@ export default function LoginScreen() {
                   disabled={otp.length !== 4}
                 />
                 <Button
-                  title="Change Number"
+                  title="Change Email"
                   onPress={() => {
                     setShowOTPInput(false);
                     setOTP('');
@@ -200,7 +202,20 @@ const styles = StyleSheet.create({
   otpHint: {
     fontSize: typography.bodySmall,
     color: colors.textSecondary,
+    marginBottom: spacing.sm,
+  },
+  otpNote: {
+    fontSize: typography.caption,
+    color: colors.textTertiary,
+    marginTop: spacing.sm,
+    textAlign: 'center',
+  },
+  emailDisplay: {
+    fontSize: typography.body,
+    fontWeight: typography.medium,
+    color: colors.primary,
     marginBottom: spacing.md,
+    textAlign: 'center',
   },
   trustSection: {
     marginTop: spacing.xl,
