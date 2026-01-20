@@ -55,18 +55,14 @@ export default function LoginScreen() {
       return;
     }
 
-    const { error, needsEmailConfirmation } = await signUpWithPassword(email, password);
+    const { error } = await signUpWithPassword(email, password);
 
     if (error) {
       showAlert('Signup Failed', error);
       return;
     }
 
-    if (needsEmailConfirmation) {
-      showAlert('Success', 'Please check your email to confirm your account');
-    } else {
-      // Success - AuthRouter will handle navigation
-    }
+    // Success - AuthRouter will handle navigation automatically
   };
 
   return (
