@@ -1,6 +1,6 @@
-// Email OTP Authentication Screen
+// Email + Password Authentication Screen
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth, useAlert } from '@/template';
 import { Button, Input } from '@/components';
@@ -8,45 +8,65 @@ import { colors, spacing, typography, borderRadius } from '@/constants/theme';
 import { config } from '@/constants/config';
 
 export default function LoginScreen() {
-  const { sendOTP, verifyOTPAndLogin, operationLoading } = useAuth();
+  const { signInWithPassword, signUpWithPassword, operationLoading } = useAuth();
   const { showAlert } = useAlert();
 
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
-  const [otp, setOTP] = useState('');
-  const [showOTPInput, setShowOTPInput] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSendOTP = async () => {
+  const handleLogin = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
       showAlert('Invalid Email', 'Please enter a valid email address');
       return;
     }
 
-    const { error } = await sendOTP(email);
-
-    if (error) {
-      showAlert('Error', error);
+    if (!password || password.length < 6) {
+      showAlert('Invalid Password', 'Password must be at least 6 characters');
       return;
     }
 
-    setShowOTPInput(true);
-    showAlert('OTP Sent', `Check your email: ${email}`);
-  };
-
-  const handleVerifyOTP = async () => {
-    if (!otp || otp.length !== 4) {
-      showAlert('Invalid OTP', 'Please enter the 4-digit OTP');
-      return;
-    }
-
-    const { error } = await verifyOTPAndLogin(email, otp);
+    const { error } = await signInWithPassword(email, password);
 
     if (error) {
-      showAlert('Verification Failed', error);
+      showAlert('Login Failed', error);
       return;
     }
 
     // Success - AuthRouter will handle navigation
+  };
+
+  const handleSignup = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      showAlert('Invalid Email', 'Please enter a valid email address');
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      showAlert('Invalid Password', 'Password must be at least 6 characters');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showAlert('Password Mismatch', 'Passwords do not match');
+      return;
+    }
+
+    const { error, needsEmailConfirmation } = await signUpWithPassword(email, password);
+
+    if (error) {
+      showAlert('Signup Failed', error);
+      return;
+    }
+
+    if (needsEmailConfirmation) {
+      showAlert('Success', 'Please check your email to confirm your account');
+    } else {
+      // Success - AuthRouter will handle navigation
+    }
   };
 
   return (
@@ -72,60 +92,58 @@ export default function LoginScreen() {
           {/* Form */}
           <View style={styles.form}>
             <Text style={styles.formTitle}>
-              {showOTPInput ? 'Enter OTP' : 'Login with Email'}
+              {isLogin ? 'Login' : 'Create Account'}
             </Text>
 
-            {!showOTPInput ? (
-              <>
-                <Input
-                  label="Email Address"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoFocus
-                />
-                <Button
-                  title="Send OTP"
-                  onPress={handleSendOTP}
-                  loading={operationLoading}
-                />
-                <Text style={styles.otpNote}>
-                  💡 We'll send a 4-digit code to your email
-                </Text>
-              </>
-            ) : (
-              <>
-                <Text style={styles.otpHint}>
-                  Check your email inbox for the 4-digit code
-                </Text>
-                <Text style={styles.emailDisplay}>{email}</Text>
-                <Input
-                  label="OTP Code"
-                  placeholder="Enter 4-digit code"
-                  value={otp}
-                  onChangeText={setOTP}
-                  keyboardType="number-pad"
-                  maxLength={4}
-                  autoFocus
-                />
-                <Button
-                  title="Verify & Login"
-                  onPress={handleVerifyOTP}
-                  loading={operationLoading}
-                  disabled={otp.length !== 4}
-                />
-                <Button
-                  title="Change Email"
-                  onPress={() => {
-                    setShowOTPInput(false);
-                    setOTP('');
-                  }}
-                  variant="outline"
-                />
-              </>
+            <Input
+              label="Email Address"
+              placeholder="your@email.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoFocus={isLogin}
+            />
+            <Input
+              label="Password"
+              placeholder="Enter password (min 6 characters)"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            
+            {!isLogin && (
+              <Input
+                label="Confirm Password"
+                placeholder="Re-enter password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+              />
             )}
+
+            <Button
+              title={isLogin ? 'Login' : 'Sign Up'}
+              onPress={isLogin ? handleLogin : handleSignup}
+              loading={operationLoading}
+            />
+
+            {/* Toggle between login and signup */}
+            <Pressable
+              onPress={() => {
+                setIsLogin(!isLogin);
+                setPassword('');
+                setConfirmPassword('');
+              }}
+              style={styles.toggleButton}
+            >
+              <Text style={styles.toggleText}>
+                {isLogin ? "Don't have an account? " : 'Already have an account? '}
+                <Text style={styles.toggleTextBold}>
+                  {isLogin ? 'Sign Up' : 'Login'}
+                </Text>
+              </Text>
+            </Pressable>
           </View>
 
           {/* Trust indicators */}
@@ -199,23 +217,17 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginBottom: spacing.lg,
   },
-  otpHint: {
-    fontSize: typography.bodySmall,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
+  toggleButton: {
+    marginTop: spacing.md,
+    alignItems: 'center',
   },
-  otpNote: {
-    fontSize: typography.caption,
-    color: colors.textTertiary,
-    marginTop: spacing.sm,
-    textAlign: 'center',
-  },
-  emailDisplay: {
+  toggleText: {
     fontSize: typography.body,
-    fontWeight: typography.medium,
+    color: colors.textSecondary,
+  },
+  toggleTextBold: {
+    fontWeight: typography.semibold,
     color: colors.primary,
-    marginBottom: spacing.md,
-    textAlign: 'center',
   },
   trustSection: {
     marginTop: spacing.xl,
