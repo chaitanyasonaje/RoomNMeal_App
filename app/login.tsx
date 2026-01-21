@@ -15,6 +15,8 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'user' | 'owner'>('user');
+  const [name, setName] = useState('');
 
   const handleLogin = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,6 +47,11 @@ export default function LoginScreen() {
       return;
     }
 
+    if (!name.trim()) {
+      showAlert('Name Required', 'Please enter your name');
+      return;
+    }
+
     if (!password || password.length < 6) {
       showAlert('Invalid Password', 'Password must be at least 6 characters');
       return;
@@ -55,7 +62,11 @@ export default function LoginScreen() {
       return;
     }
 
-    const { error } = await signUpWithPassword(email, password);
+    // Pass role and name as metadata during signup
+    const { error } = await signUpWithPassword(email, password, {
+      role: selectedRole,
+      name: name.trim(),
+    });
 
     if (error) {
       showAlert('Signup Failed', error);
@@ -91,6 +102,54 @@ export default function LoginScreen() {
               {isLogin ? 'Login' : 'Create Account'}
             </Text>
 
+            {!isLogin && (
+              <>
+                <Text style={styles.roleLabel}>I want to:</Text>
+                <View style={styles.roleSelector}>
+                  <Pressable
+                    onPress={() => setSelectedRole('user')}
+                    style={[
+                      styles.roleOption,
+                      selectedRole === 'user' && styles.roleOptionSelected
+                    ]}
+                  >
+                    <Text style={[
+                      styles.roleOptionIcon,
+                      selectedRole === 'user' && styles.roleOptionIconSelected
+                    ]}>🔍</Text>
+                    <Text style={[
+                      styles.roleOptionTitle,
+                      selectedRole === 'user' && styles.roleOptionTitleSelected
+                    ]}>Find Room/Mess</Text>
+                    <Text style={[
+                      styles.roleOptionDesc,
+                      selectedRole === 'user' && styles.roleOptionDescSelected
+                    ]}>I'm looking for accommodation</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setSelectedRole('owner')}
+                    style={[
+                      styles.roleOption,
+                      selectedRole === 'owner' && styles.roleOptionSelected
+                    ]}
+                  >
+                    <Text style={[
+                      styles.roleOptionIcon,
+                      selectedRole === 'owner' && styles.roleOptionIconSelected
+                    ]}>🏠</Text>
+                    <Text style={[
+                      styles.roleOptionTitle,
+                      selectedRole === 'owner' && styles.roleOptionTitleSelected
+                    ]}>List Property/Mess</Text>
+                    <Text style={[
+                      styles.roleOptionDesc,
+                      selectedRole === 'owner' && styles.roleOptionDescSelected
+                    ]}>I have rooms/mess to offer</Text>
+                  </Pressable>
+                </View>
+              </>
+            )}
+
             <Input
               label="Email Address"
               placeholder="your@email.com"
@@ -100,6 +159,16 @@ export default function LoginScreen() {
               autoCapitalize="none"
               autoFocus={isLogin}
             />
+            
+            {!isLogin && (
+              <Input
+                label="Full Name"
+                placeholder="Enter your name"
+                value={name}
+                onChangeText={setName}
+              />
+            )}
+            
             <Input
               label="Password"
               placeholder="Enter password (min 6 characters)"
@@ -130,6 +199,7 @@ export default function LoginScreen() {
                 setIsLogin(!isLogin);
                 setPassword('');
                 setConfirmPassword('');
+                setName('');
               }}
               style={styles.toggleButton}
             >
@@ -252,5 +322,54 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     color: colors.textSecondary,
     flex: 1,
+  },
+  roleLabel: {
+    fontSize: typography.h4,
+    fontWeight: typography.semibold,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
+  },
+  roleSelector: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  roleOption: {
+    flex: 1,
+    padding: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.md,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+  },
+  roleOptionSelected: {
+    backgroundColor: colors.primaryLight,
+    borderColor: colors.primary,
+  },
+  roleOptionIcon: {
+    fontSize: 32,
+    marginBottom: spacing.xs,
+  },
+  roleOptionIconSelected: {
+    transform: [{ scale: 1.1 }],
+  },
+  roleOptionTitle: {
+    fontSize: typography.bodySmall,
+    fontWeight: typography.semibold,
+    color: colors.textPrimary,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  roleOptionTitleSelected: {
+    color: '#FFFFFF',
+  },
+  roleOptionDesc: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  roleOptionDescSelected: {
+    color: 'rgba(255, 255, 255, 0.9)',
   },
 });

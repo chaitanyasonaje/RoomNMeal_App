@@ -31,6 +31,98 @@ export default function TabLayout() {
     borderTopColor: colors.borderDark,
   };
 
+  // Different tab configurations based on role
+  if (isAdmin) {
+    return (
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle,
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textSecondaryDark,
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '500',
+          },
+        }}
+      >
+        <Tabs.Screen
+          name="admin"
+          options={{
+            title: 'Dashboard',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="dashboard" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="person" size={size} color={color} />
+            ),
+          }}
+        />
+        {/* Hide other screens for admin */}
+        <Tabs.Screen name="index" options={{ href: null }} />
+        <Tabs.Screen name="saved" options={{ href: null }} />
+        <Tabs.Screen name="my-listings" options={{ href: null }} />
+        <Tabs.Screen name="owner-home" options={{ href: null }} />
+      </Tabs>
+    );
+  }
+
+  if (isOwner) {
+    return (
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle,
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textSecondaryDark,
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '500',
+          },
+        }}
+      >
+        <Tabs.Screen
+          name="owner-home"
+          options={{
+            title: 'My Listings',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="business" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Browse',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="search" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="person" size={size} color={color} />
+            ),
+          }}
+        />
+        {/* Hide screens not needed for owners */}
+        <Tabs.Screen name="saved" options={{ href: null }} />
+        <Tabs.Screen name="my-listings" options={{ href: null }} />
+        <Tabs.Screen name="admin" options={{ href: null }} />
+      </Tabs>
+    );
+  }
+
+  // Default user tabs
   return (
     <Tabs
       screenOptions={{
@@ -62,28 +154,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      {isOwner && (
-        <Tabs.Screen
-          name="my-listings"
-          options={{
-            title: 'My Listings',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="list" size={size} color={color} />
-            ),
-          }}
-        />
-      )}
-      {isAdmin && (
-        <Tabs.Screen
-          name="admin"
-          options={{
-            title: 'Admin',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="admin-panel-settings" size={size} color={color} />
-            ),
-          }}
-        />
-      )}
       <Tabs.Screen
         name="profile"
         options={{
@@ -93,6 +163,10 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* Hide screens not needed for regular users */}
+      <Tabs.Screen name="my-listings" options={{ href: null }} />
+      <Tabs.Screen name="admin" options={{ href: null }} />
+      <Tabs.Screen name="owner-home" options={{ href: null }} />
     </Tabs>
   );
 }
