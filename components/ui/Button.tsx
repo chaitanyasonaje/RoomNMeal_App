@@ -1,6 +1,6 @@
 // Primary button component
 import React from 'react';
-import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { Pressable, Text, StyleSheet, ActivityIndicator, StyleProp, ViewStyle } from 'react-native';
 import { colors, spacing, typography, borderRadius } from '@/constants/theme';
 
 interface ButtonProps {
@@ -10,6 +10,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   icon?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function Button({ 
@@ -19,6 +20,7 @@ export function Button({
   disabled = false,
   loading = false,
   icon,
+  style,
 }: ButtonProps) {
   const isPrimary = variant === 'primary';
   const isSecondary = variant === 'secondary';
@@ -34,6 +36,7 @@ export function Button({
         variant === 'outline' && styles.buttonOutline,
         (disabled || loading) && styles.buttonDisabled,
         pressed && styles.buttonPressed,
+        style,
       ]}
     >
       {loading ? (
