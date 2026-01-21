@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "onspace-app",
-    "slug": "onspace-app",
+    "name": "roomnmeal-app",
+    "slug": "roomnmeal-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
-    "scheme": "onspaceapp",
+    "scheme": "roomnmeal",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.chaitanya0205.roomnmealapp"
     },
     "web": {
       "bundler": "metro",
@@ -38,6 +39,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "cc7f774c-6186-4a47-b2e7-c79b61fbc7a4"
+      }
+    },
+    "owner": "chaitanya0205"
   }
 }

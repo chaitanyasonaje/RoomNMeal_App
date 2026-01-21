@@ -1,39 +1,60 @@
-// Email + Password Authentication Screen
+// Phone OTP Authentication Screen
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth, useAlert } from '@/template';
 import { Button, Input } from '@/components';
 import { colors, spacing, typography, borderRadius } from '@/constants/theme';
 import { config } from '@/constants/config';
 
 export default function LoginScreen() {
-  const router = useRouter();
-  const { signInWithPassword, signUpWithPassword, operationLoading } = useAuth();
+  const { sendOTP, verifyOTPAndLogin, operationLoading } = useAuth();
   const { showAlert } = useAlert();
+  const router = useRouter();
 
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'user' | 'owner'>('user');
-  const [name, setName] = useState('');
+  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
 
-  const handleLogin = async () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      showAlert('Invalid Email', 'Please enter a valid email address');
+  const handleSendOTP = async () => {
+    // Basic phone validation (digits only, at least 10)
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      showAlert('Invalid Phone', 'Please enter a valid phone number (10 digits)');
+      return;
+    }
+    
+    // Format phone number with country code if needed
+    // Assuming India (+91) if no country code provided
+    let formattedPhone = phone;
+    if (!phone.startsWith('+')) {
+      formattedPhone = `+91${cleanPhone.slice(-10)}`;
+    }
+
+    const { error } = await sendOTP(formattedPhone);
+
+    if (error) {
+      showAlert('Error', error);
       return;
     }
 
-    if (!password || password.length < 6) {
-      showAlert('Invalid Password', 'Password must be at least 6 characters');
+    setStep('otp');
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otp || otp.length < 6) {
+      showAlert('Invalid OTP', 'Please enter a 6-digit OTP');
       return;
     }
 
-    const { error } = await signInWithPassword(email, password);
+    const cleanPhone = phone.replace(/\D/g, '');
+    let formattedPhone = phone;
+    if (!phone.startsWith('+')) {
+      formattedPhone = `+91${cleanPhone.slice(-10)}`;
+    }
+
+    const { error } = await verifyOTPAndLogin(formattedPhone, otp);
 
     if (error) {
       showAlert('Login Failed', error);
@@ -43,40 +64,9 @@ export default function LoginScreen() {
     // Success - AuthRouter will handle navigation
   };
 
-  const handleSignup = async () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      showAlert('Invalid Email', 'Please enter a valid email address');
-      return;
-    }
-
-    if (!name.trim()) {
-      showAlert('Name Required', 'Please enter your name');
-      return;
-    }
-
-    if (!password || password.length < 6) {
-      showAlert('Invalid Password', 'Password must be at least 6 characters');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      showAlert('Password Mismatch', 'Passwords do not match');
-      return;
-    }
-
-    // Pass role and name as metadata during signup
-    const { error } = await signUpWithPassword(email, password, {
-      role: selectedRole,
-      name: name.trim(),
-    });
-
-    if (error) {
-      showAlert('Signup Failed', error);
-      return;
-    }
-
-    // Success - AuthRouter will handle navigation automatically
+  const handleChangePhone = () => {
+    setStep('phone');
+    setOtp('');
   };
 
   return (
@@ -102,145 +92,58 @@ export default function LoginScreen() {
           {/* Form */}
           <View style={styles.form}>
             <Text style={styles.formTitle}>
-              {isLogin ? 'Login' : 'Create Account'}
+              {step === 'phone' ? 'Login with Phone' : 'Enter OTP'}
+            </Text>
+            <Text style={styles.formSubtitle}>
+              {step === 'phone' 
+                ? 'Enter your mobile number to receive a verification code' 
+                : `We sent a code to ${phone}`}
             </Text>
 
-            {!isLogin && (
-              <>
-                <Text style={styles.roleLabel}>I want to:</Text>
-                <View style={styles.roleSelector}>
-                  <Pressable
-                    onPress={() => setSelectedRole('user')}
-                    style={[
-                      styles.roleOption,
-                      selectedRole === 'user' && styles.roleOptionSelected
-                    ]}
-                  >
-                    <Text style={[
-                      styles.roleOptionIcon,
-                      selectedRole === 'user' && styles.roleOptionIconSelected
-                    ]}>🔍</Text>
-                    <Text style={[
-                      styles.roleOptionTitle,
-                      selectedRole === 'user' && styles.roleOptionTitleSelected
-                    ]}>Find Room/Mess</Text>
-                    <Text style={[
-                      styles.roleOptionDesc,
-                      selectedRole === 'user' && styles.roleOptionDescSelected
-                    ]}>I'm looking for accommodation</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setSelectedRole('owner')}
-                    style={[
-                      styles.roleOption,
-                      selectedRole === 'owner' && styles.roleOptionSelected
-                    ]}
-                  >
-                    <Text style={[
-                      styles.roleOptionIcon,
-                      selectedRole === 'owner' && styles.roleOptionIconSelected
-                    ]}>🏠</Text>
-                    <Text style={[
-                      styles.roleOptionTitle,
-                      selectedRole === 'owner' && styles.roleOptionTitleSelected
-                    ]}>List Property/Mess</Text>
-                    <Text style={[
-                      styles.roleOptionDesc,
-                      selectedRole === 'owner' && styles.roleOptionDescSelected
-                    ]}>I have rooms/mess to offer</Text>
-                  </Pressable>
-                </View>
-              </>
-            )}
-
-            <Input
-              label="Email Address"
-              placeholder="your@email.com"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoFocus={isLogin}
-            />
-            
-            {!isLogin && (
+            {step === 'phone' ? (
               <Input
-                label="Full Name"
-                placeholder="Enter your name"
-                value={name}
-                onChangeText={setName}
+                label="Phone Number"
+                placeholder="+91 98765 43210"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                autoFocus
               />
-            )}
-            
-            <Input
-              label="Password"
-              placeholder="Enter password (min 6 characters)"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-            
-            {!isLogin && (
+            ) : (
               <Input
-                label="Confirm Password"
-                placeholder="Re-enter password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
+                label="Verification Code"
+                placeholder="123456"
+                value={otp}
+                onChangeText={setOtp}
+                keyboardType="number-pad"
+                maxLength={6}
+                autoFocus
               />
             )}
 
             <Button
-              title={isLogin ? 'Login' : 'Sign Up'}
-              onPress={isLogin ? handleLogin : handleSignup}
+              title={step === 'phone' ? "Get OTP" : "Verify & Login"}
+              onPress={step === 'phone' ? handleSendOTP : handleVerifyOTP}
               loading={operationLoading}
+              style={styles.submitButton}
             />
 
-            {/* Toggle between login and signup */}
-            <Pressable
-              onPress={() => {
-                setIsLogin(!isLogin);
-                setPassword('');
-                setConfirmPassword('');
-                setName('');
-              }}
-              style={styles.toggleButton}
-            >
-              <Text style={styles.toggleText}>
-                {isLogin ? "Don't have an account? " : 'Already have an account? '}
-                <Text style={styles.toggleTextBold}>
-                  {isLogin ? 'Sign Up' : 'Login'}
-                </Text>
-              </Text>
-            </Pressable>
-
-            {/* Admin login link */}
-            {isLogin && (
-              <Pressable
-                onPress={() => router.push('/admin-login')}
-                style={styles.adminLink}
-              >
-                <MaterialIcons name="admin-panel-settings" size={16} color={colors.textTertiary} />
-                <Text style={styles.adminLinkText}>Admin Portal</Text>
-              </Pressable>
+            {step === 'otp' && (
+              <Button
+                title="Change Phone Number"
+                variant="outline"
+                onPress={handleChangePhone}
+                disabled={operationLoading}
+                style={styles.changePhoneButton}
+              />
             )}
           </View>
 
-          {/* Trust indicators */}
-          <View style={styles.trustSection}>
-            <Text style={styles.trustTitle}>Why RoomNMeal?</Text>
-            <View style={styles.trustItem}>
-              <Text style={styles.trustIcon}>✓</Text>
-              <Text style={styles.trustText}>All listings manually verified</Text>
-            </View>
-            <View style={styles.trustItem}>
-              <Text style={styles.trustIcon}>✓</Text>
-              <Text style={styles.trustText}>No broker charges</Text>
-            </View>
-            <View style={styles.trustItem}>
-              <Text style={styles.trustIcon}>✓</Text>
-              <Text style={styles.trustText}>Direct contact with owners</Text>
-            </View>
+          {/* Footer Info */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              By continuing, you agree to our Terms of Service and Privacy Policy.
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -259,142 +162,79 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: spacing.lg,
+    justifyContent: 'center',
   },
   header: {
     alignItems: 'center',
-    marginTop: spacing.xl,
     marginBottom: spacing.xxl,
   },
   logoContainer: {
     width: 80,
     height: 80,
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-    alignItems: 'center',
+    backgroundColor: colors.primaryLight,
+    borderRadius: borderRadius.round,
     justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: spacing.md,
   },
   logoIcon: {
     fontSize: 40,
   },
   appName: {
-    fontSize: typography.h1,
-    fontWeight: typography.bold,
+    fontSize: typography.size.xxl,
+    fontWeight: 'bold',
     color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
   tagline: {
-    fontSize: typography.body,
+    fontSize: typography.size.md,
     color: colors.textSecondary,
     textAlign: 'center',
   },
   form: {
-    marginBottom: spacing.xl,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+      web: {
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      },
+    }),
   },
   formTitle: {
-    fontSize: typography.h3,
-    fontWeight: typography.semibold,
+    fontSize: typography.size.xl,
+    fontWeight: 'bold',
     color: colors.textPrimary,
-    marginBottom: spacing.lg,
-  },
-  toggleButton: {
-    marginTop: spacing.md,
-    alignItems: 'center',
-  },
-  toggleText: {
-    fontSize: typography.body,
-    color: colors.textSecondary,
-  },
-  toggleTextBold: {
-    fontWeight: typography.semibold,
-    color: colors.primary,
-  },
-  adminLink: {
-    marginTop: spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-  },
-  adminLinkText: {
-    fontSize: typography.bodySmall,
-    color: colors.textTertiary,
-  },
-  trustSection: {
-    marginTop: spacing.xl,
-    paddingTop: spacing.xl,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  trustTitle: {
-    fontSize: typography.h4,
-    fontWeight: typography.semibold,
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
-  trustItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  trustIcon: {
-    fontSize: 20,
-    color: colors.verified,
-    marginRight: spacing.sm,
-    width: 24,
-  },
-  trustText: {
-    fontSize: typography.body,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-  roleLabel: {
-    fontSize: typography.h4,
-    fontWeight: typography.semibold,
-    color: colors.textPrimary,
-    marginBottom: spacing.md,
-  },
-  roleSelector: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  roleOption: {
-    flex: 1,
-    padding: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: 'center',
-  },
-  roleOptionSelected: {
-    backgroundColor: colors.primaryLight,
-    borderColor: colors.primary,
-  },
-  roleOptionIcon: {
-    fontSize: 32,
     marginBottom: spacing.xs,
   },
-  roleOptionIconSelected: {
-    transform: [{ scale: 1.1 }],
-  },
-  roleOptionTitle: {
-    fontSize: typography.bodySmall,
-    fontWeight: typography.semibold,
-    color: colors.textPrimary,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  roleOptionTitleSelected: {
-    color: '#FFFFFF',
-  },
-  roleOptionDesc: {
-    fontSize: 11,
+  formSubtitle: {
+    fontSize: typography.size.sm,
     color: colors.textSecondary,
-    textAlign: 'center',
+    marginBottom: spacing.xl,
   },
-  roleOptionDescSelected: {
-    color: 'rgba(255, 255, 255, 0.9)',
+  submitButton: {
+    marginTop: spacing.md,
+  },
+  changePhoneButton: {
+    marginTop: spacing.md,
+  },
+  footer: {
+    marginTop: spacing.xxl,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: typography.size.xs,
+    color: colors.textTertiary,
+    textAlign: 'center',
+    maxWidth: 250,
   },
 });

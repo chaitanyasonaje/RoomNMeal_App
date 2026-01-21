@@ -173,30 +173,21 @@ export const listingService = {
       if (file.uri.startsWith('file://')) {
         const response = await fetch(file.uri);
         const blob = await response.blob();
-        const reader = new FileReader();
         
-        return new Promise<{ data: string | null; error: string | null }>((resolve) => {
-          reader.onloadend = async () => {
-            const base64 = reader.result as string;
-            const base64Data = base64.split(',')[1];
-            
-            const { data, error } = await supabase.storage
-              .from('listing-photos')
-              .upload(fileName, decode(base64Data), {
-                contentType: file.type,
-              });
+        const { data, error } = await supabase.storage
+          .from('listing-photos')
+          .upload(fileName, blob, {
+            contentType: file.type,
+          });
 
-            if (error) {
-              resolve({ data: null, error: error.message });
-            } else {
-              const { data: urlData } = supabase.storage
-                .from('listing-photos')
-                .getPublicUrl(fileName);
-              resolve({ data: urlData.publicUrl, error: null });
-            }
-          };
-          reader.readAsDataURL(blob);
-        });
+        if (error) {
+          return { data: null, error: error.message };
+        } else {
+          const { data: urlData } = supabase.storage
+            .from('listing-photos')
+            .getPublicUrl(fileName);
+          return { data: urlData.publicUrl, error: null };
+        }
       } else {
         // For web
         const response = await fetch(file.uri);

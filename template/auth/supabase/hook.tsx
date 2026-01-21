@@ -46,10 +46,10 @@ export function useAuth(): AuthContextType {
     };
   }
 
-  const sendOTP = async (email: string): Promise<SendOTPResult> => {
+  const sendOTP = async (identifier: string): Promise<SendOTPResult> => {
     context.setOperationLoading(true);
     try {
-      const result = await authService.sendOTP(email);
+      const result = await authService.sendOTP(identifier);
       return result;
     } catch (error) {
       console.warn('[Template:useAuth] sendOTP exception:', error);
@@ -61,10 +61,10 @@ export function useAuth(): AuthContextType {
     }
   };
 
-    const verifyOTPAndLogin = async (email: string, otp: string, options?: { password?: string }): Promise<AuthResult> => {
+    const verifyOTPAndLogin = async (identifier: string, otp: string, options?: { password?: string }): Promise<AuthResult> => {
     context.setOperationLoading(true);
     try {
-      const result = await authService.verifyOTPAndLogin(email, otp, options);
+      const result = await authService.verifyOTPAndLogin(identifier, otp, options);
       return result;
     } catch (error) {
       console.warn('[Template:useAuth] verifyOTPAndLogin exception:', error);

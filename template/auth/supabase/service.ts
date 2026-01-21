@@ -140,19 +140,24 @@ export class AuthService {
     };
   }
 
-  async sendOTP(email: string, options: SendOTPOptions = {}) {
+  async sendOTP(identifier: string, options: SendOTPOptions = {}) {
     try {
       const { shouldCreateUser = true, emailRedirectTo } = options;
+      const isEmail = identifier.includes('@');
       
       return await safeSupabaseOperation(async (client) => {
         const { error } = await withTimeout(
-          client.auth.signInWithOtp({
-            email,
-            options: {
-              shouldCreateUser,
-              emailRedirectTo,
-            }
-          }),
+          client.auth.signInWithOtp(
+            isEmail 
+              ? {
+                  email: identifier,
+                  options: { shouldCreateUser, emailRedirectTo }
+                }
+              : {
+                  phone: identifier,
+                  options: { shouldCreateUser }
+                }
+          ),
           TIMEOUT_CONFIG.AUTH_OPERATIONS,
           'SendOTP'
         );
@@ -178,15 +183,18 @@ export class AuthService {
     }
   }
 
-  async verifyOTPAndLogin(email: string, otp: string, options?: { password?: string }) {
+  async verifyOTPAndLogin(identifier: string, otp: string, options?: { password?: string }) {
     try {
+      const isEmail = identifier.includes('@');
+
       return await safeSupabaseOperation(async (client) => {
         // Step 1: Verify OTP first
         const { data, error } = await withTimeout(
           client.auth.verifyOtp({
-            email,
+            email: isEmail ? identifier : undefined,
+            phone: isEmail ? undefined : identifier,
             token: otp,
-            type: 'email'
+            type: isEmail ? 'email' : 'sms'
           }),
           TIMEOUT_CONFIG.AUTH_OPERATIONS,
           'VerifyOTP'
