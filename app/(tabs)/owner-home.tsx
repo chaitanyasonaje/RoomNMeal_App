@@ -69,12 +69,33 @@ export default function OwnerHomeScreen() {
           <Text style={styles.headerTitle}>👋 Welcome, {user?.name || 'Owner'}</Text>
           <Text style={styles.headerSubtitle}>Manage your listings</Text>
         </View>
-        <Pressable
-          onPress={() => router.push('/add-listing')}
-          style={styles.addButton}
-        >
-          <MaterialIcons name="add" size={24} color="#FFFFFF" />
-        </Pressable>
+      </View>
+
+      {/* Quick Add Section */}
+      <View style={styles.quickAddSection}>
+        <Text style={styles.quickAddTitle}>Add New Listing</Text>
+        <View style={styles.quickAddButtons}>
+          <Pressable
+            onPress={() => router.push({ pathname: '/add-listing', params: { type: 'room' } })}
+            style={styles.quickAddCard}
+          >
+            <View style={styles.quickAddIcon}>
+              <MaterialIcons name="home" size={32} color={colors.primary} />
+            </View>
+            <Text style={styles.quickAddLabel}>Room/PG</Text>
+            <Text style={styles.quickAddDesc}>List accommodation</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push({ pathname: '/add-listing', params: { type: 'mess' } })}
+            style={styles.quickAddCard}
+          >
+            <View style={styles.quickAddIcon}>
+              <MaterialIcons name="restaurant" size={32} color={colors.primary} />
+            </View>
+            <Text style={styles.quickAddLabel}>Mess/Tiffin</Text>
+            <Text style={styles.quickAddDesc}>List food service</Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* Stats Cards */}
@@ -156,13 +177,50 @@ const styles = StyleSheet.create({
     fontSize: typography.bodySmall,
     color: colors.textSecondary,
   },
-  addButton: {
-    width: 48,
-    height: 48,
-    backgroundColor: colors.primary,
-    borderRadius: 24,
+  quickAddSection: {
+    padding: spacing.md,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  quickAddTitle: {
+    fontSize: typography.h4,
+    fontWeight: typography.semibold,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
+  },
+  quickAddButtons: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  quickAddCard: {
+    flex: 1,
+    backgroundColor: colors.background,
+    padding: spacing.md,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  quickAddIcon: {
+    width: 60,
+    height: 60,
+    backgroundColor: colors.primaryLight,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
+  quickAddLabel: {
+    fontSize: typography.body,
+    fontWeight: typography.semibold,
+    color: colors.textPrimary,
+    marginBottom: 4,
+  },
+  quickAddDesc: {
+    fontSize: typography.caption,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
   statsContainer: {
     flexDirection: 'row',

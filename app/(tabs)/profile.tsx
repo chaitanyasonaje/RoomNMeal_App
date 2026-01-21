@@ -131,16 +131,7 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        {/* Switch to owner */}
-        {!isOwner && !isAdmin && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Become an Owner</Text>
-            <Text style={styles.sectionDescription}>
-              Have a room/PG or mess service? Switch to owner mode to add your listings.
-            </Text>
-            <Button title="Switch to Owner Account" onPress={handleSwitchToOwner} variant="outline" />
-          </View>
-        )}
+        {/* Removed become an owner section - users select role during signup */}
 
         {/* About */}
         <View style={styles.section}>

@@ -2,12 +2,15 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth, useAlert } from '@/template';
 import { Button, Input } from '@/components';
 import { colors, spacing, typography, borderRadius } from '@/constants/theme';
 import { config } from '@/constants/config';
 
 export default function LoginScreen() {
+  const router = useRouter();
   const { signInWithPassword, signUpWithPassword, operationLoading } = useAuth();
   const { showAlert } = useAlert();
 
@@ -210,6 +213,17 @@ export default function LoginScreen() {
                 </Text>
               </Text>
             </Pressable>
+
+            {/* Admin login link */}
+            {isLogin && (
+              <Pressable
+                onPress={() => router.push('/admin-login')}
+                style={styles.adminLink}
+              >
+                <MaterialIcons name="admin-panel-settings" size={16} color={colors.textTertiary} />
+                <Text style={styles.adminLinkText}>Admin Portal</Text>
+              </Pressable>
+            )}
           </View>
 
           {/* Trust indicators */}
@@ -294,6 +308,17 @@ const styles = StyleSheet.create({
   toggleTextBold: {
     fontWeight: typography.semibold,
     color: colors.primary,
+  },
+  adminLink: {
+    marginTop: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+  },
+  adminLinkText: {
+    fontSize: typography.bodySmall,
+    color: colors.textTertiary,
   },
   trustSection: {
     marginTop: spacing.xl,

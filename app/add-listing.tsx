@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Pressable, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth, useAlert } from '@/template';
@@ -14,10 +14,13 @@ import type { ListingType } from '@/types';
 
 export default function AddListingScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ type?: string }>();
   const { user } = useAuth();
   const { showAlert } = useAlert();
 
-  const [type, setType] = useState<ListingType>('room');
+  const [type, setType] = useState<ListingType>(
+    (params.type === 'room' || params.type === 'mess') ? params.type : 'room'
+  );
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [price, setPrice] = useState('');
